@@ -68,6 +68,15 @@ def valida_input_unidade(valor: "list | str"):
                 return False
         else:
             return float(valor[0])
+    elif valor[0][0] == "-" and valor[0][1:].replace(".","",1).isdigit():
+        if len(valor) > 1:
+            if valor[1] in unidades.keys():
+                return float(valor[0]) * unidades[valor[1]]
+            else:
+                print("Unidade invalida")
+                return False
+        else:
+            return float(valor[0])
     else:
         for i in range(len(valor[0])):
             if valor[0][i] == ".":
@@ -76,7 +85,7 @@ def valida_input_unidade(valor: "list | str"):
                 else:
                     print("Valor invalido")
                     return False
-            if valor[0][i].isnumeric() or (valor[0][i] == "."):
+            if valor[0][i].isnumeric() or valor[0][i] == "." or valor[0][i] == "-" and i == 0:
                 continue
             elif not valor[0][i].isnumeric() and valor[0][i] != "." and valor[0][i] in unidades.keys():
                 return valida_input_unidade(valor[0][:i] + " " + valor[0][i:i + 1])
@@ -125,7 +134,7 @@ def f_frequencia():
     print("Unidades aceitas:", ", ".join(unidades.keys()), "ou nenhuma.")
     f = input("f: ")
     f = valida_input_unidade(f)
-    if f == False:
+    if f == False or f < 0:
         return
     lambida = c / f
     k = 2 * math.pi / lambida
@@ -134,11 +143,43 @@ def f_frequencia():
     return
 
 def lambda_comprimento_onda():
-    pass
+    print("Digite o Comprimento de Onda da onda eletromagnética (λ) [m]")
+    print("Unidades aceitas:", ", ".join(unidades.keys()), "ou nenhuma.")
+    lambida = input("λ: ")
+    lambida = valida_input_unidade(lambida)
+    if lambida == False or lambida < 0:
+        return
+    f = c / lambida
+    k = 2 * math.pi / lambida
+    omega = 2 * math.pi * f
+    print(f"λ: {lambida:.2e} [m]\nf: {f:.2e}[Hz]\n\nk: {k:.2e} [rad/m]\nω: {omega:.2e} [rad/s]\n")
+    return
+
 def k_numero_onda():
-    pass
+    print("Digite o numero de onda da onda eletromagnética (k) [rad/m]")
+    print("Unidades aceitas:", ", ".join(unidades.keys()), "ou nenhuma.")
+    k = input("k: ")
+    k = valida_input_unidade(k)
+    if k == False:
+        return
+    lambida = 2 * math.pi / k
+    f = c / lambida
+    omega = 2 * math.pi * f
+    print(f"k: {k:.2e} [rad/m]\nf: {f:.2e}[Hz]\nλ: {lambida:.2e} [m]\nω: {omega:.2e} [rad/s]\n")
+    return
+
 def omega_freq_angular():
-    pass
+    print("Digite a Frequência Angular da onda eletromagnética (ω) [rad/s]")
+    print("Unidades aceitas:", ", ".join(unidades.keys()), "ou nenhuma.")
+    omega = input("ω: ")
+    omega = valida_input_unidade(omega)
+    if omega == False:
+        return
+    f = omega/(2 * math.pi)
+    lambida = c / f
+    k = 2 * math.pi / lambida
+    print(f"ω: {omega:.2e} [rad/s]\nf: {f:.2e}[Hz]\nλ: {lambida:.2e} [m]\nk: {k:.2e} [rad/m]\n")
+    return
 
 calculos_possiveis = {"Em": em_amplitude_campo_eletrico, 
                       "Bm": bm_amplitude_campo_magnetico, 
@@ -149,7 +190,11 @@ calculos_possiveis = {"Em": em_amplitude_campo_eletrico,
                       "k": k_numero_onda, 
                       "ω": omega_freq_angular, 
                       "omega": omega_freq_angular}
-calculos_possiveis_list = [func for func in calculos_possiveis.values()]
+calculos_possiveis_temp = [func for func in calculos_possiveis.values()]
+calculos_possiveis_list = []
+for func in calculos_possiveis_temp:
+    if func not in calculos_possiveis_list:
+        calculos_possiveis_list.append(func)
 
 def main():
     print(titulo)
